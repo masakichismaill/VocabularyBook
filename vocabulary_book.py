@@ -1,11 +1,14 @@
 import tkinter as tk
-
+import json
+import os
 
 root = tk.Tk()
 root.title("英単語帳アプリ")
 root.geometry("900x600")
 # 単語を保存するリスト
 words = []  # 例: {"english": "apple","japanese": "りんご"}を入れていく
+# 保存するファイル名
+WORDS_FILE = "words.json"
 
 
 # ======================
@@ -39,6 +42,8 @@ def add_word():
     example_text.delete("1.0", tk.END)
     # 画面のリストを更新
     refresh_word_list()
+    # ファイルにも保存
+    save_words_to_file()
 
 
 def on_select(event):
@@ -60,8 +65,26 @@ def on_select(event):
     en_entry.insert(0, w["english"])
     ja_entry.insert(0, w["japanese"])
     # 例文があれば入れる（古いデータにexampleがない場合の保険も兼ねて）
-    if "example" in w:
+    if "example" in w:  # 例文があれば入れてあげる
         example_text.insert("1.0", w["example"])
+
+
+def save_words_to_file():
+    """words全体をJSONファイルに保存する"""
+    with open(WORDS_FILE, "w", encoding="utf-8") as f:
+        # ensure_ascii = False ->日本語もそのまま書き込む
+        json.dump(words, f, ensure_ascii=False, indent=2)
+
+
+def load_words_from_file():
+    """起動時にJSONファイルから単語リストを読み込む"""
+    global words
+    if not os.path.exists(WORDS_FILE):
+        return  # まだファイルがなければ何もしない
+    with open(WORDS_FILE, "r", encoding="utf-8") as f:
+        words = json.load(f)
+    # 読み込んだ内容を画面に反映
+    refresh_word_list()
 
 
 # ======================
@@ -122,13 +145,15 @@ example_text.pack(fill="both", expand=True)
 button_frame = tk.Frame(right_frame, pady=10)
 button_frame.pack(fill="x")
 
-new_button = tk.Button(button_frame, text="新規", width=10, command=add_word)
+add_button = tk.Button(button_frame, text="追加", width=10, command=add_word)
 save_button = tk.Button(button_frame, text="保存", width=10)
 delete_button = tk.Button(button_frame, text="削除", width=10)
 quiz_button = tk.Button(button_frame, text="クイズ", width=10)
 
-new_button.pack(side="left", padx=5)
+add_button.pack(side="left", padx=5)
 save_button.pack(side="left", padx=5)
 delete_button.pack(side="left", padx=5)
 quiz_button.pack(side="right", padx=5)
+
+load_words_from_file()  # 起動時にファイルから読み込む
 root.mainloop()
