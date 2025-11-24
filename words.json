@@ -2,6 +2,11 @@
   {
     "english": "apple",
     "japanese": "りんご",
-    "example": "I like apples"
+    "example": "I like apples."
+  },
+  {
+    "english": "banana",
+    "japanese": "バナナ",
+    "example": "I like bananas."
   }
 ]
